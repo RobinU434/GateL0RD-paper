@@ -14,7 +14,6 @@ import pyglet
 import random
 from pyglet.gl import *
 from pyglet.image.codecs.png import PNGImageDecoder
-
 import os
 
 SCRIPT_PATH = os.path.dirname(os.path.realpath(__file__)) + '/'
@@ -41,7 +40,6 @@ class RemoteControlGym(gym.Env):
     Goal and computer position do not change over simulations.
 
     """
-
     def __init__(self, r_seed=42):
         """
         :param r_seed: random seed
@@ -151,10 +149,7 @@ class RemoteControlGym(gym.Env):
         norm_robot_pos[0] -= 2.0
 
         # Create additional info vector
-        robot_controlled_array = np.array([0.0])
-        if self.robot_controlled:
-            robot_controlled_array[0] = 1.0
-        info = np.append(robot_controlled_array, self.wall_contacts)
+        info = {"robot_controlled": self.robot_controlled, "wall_contacts": self.wall_contacts}
 
         observation = np.append(self.agent_pos.flat, norm_robot_pos.flat, 0)
         return observation, reward, done, info
@@ -164,12 +159,13 @@ class RemoteControlGym(gym.Env):
         np.clip(self.robot_pos, self.robot_pos_lower_limits, self.robot_pos_upper_limits, self.robot_pos)
 
     # ------------- RESET -------------
-    def reset(self, with_info=False):
+    def reset(self, *, seed = None, options = None):
         """
         Randomly reset the simulation.
         :param with_info: include additional info (robot control, wall sensors) in output
         :return: first observation, additional info
         """
+        self.seed(seed)
 
         self.agent_pos = (np.random.rand(2) - 0.5) * 2
         self.robot_pos = (np.random.rand(2) - 0.5) * 2 + np.array([2.0, 0.0], dtype=np.float64)
@@ -189,16 +185,13 @@ class RemoteControlGym(gym.Env):
         self.wall_contacts[abs(pos_diff) > 0.1] = 0
 
         o_init = np.append(self.agent_pos.flat, norm_robot_pos.flat, 0)
-
-        if with_info:
+        
+        if "with_info" in options.keys() and options["with_info"]:
             # Create additional info vector
-            robot_controlled_array = np.array([0.0])
-            if self.robot_controlled:
-                robot_controlled_array[0] = 1.0
-            info_init = np.append(robot_controlled_array, self.wall_contacts)
-            return o_init, info_init
-
-        return o_init
+            info = {"robot_controlled": self.robot_controlled, "wall_contacts": self.wall_contacts}
+        else:
+            info = {}
+        return o_init, info
 
     # ------------- RENDERING -------------
 
