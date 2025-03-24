@@ -98,7 +98,7 @@ def setup_parser():
     parser.add_argument(
         "--target-dir",
         type=str,
-        default="data/RRC2/",
+        default="data/RRC/",
         help="where to store the datasets",
     )
     parser.add_argument(
