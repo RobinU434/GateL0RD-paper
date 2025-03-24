@@ -1,5 +1,5 @@
 {
-  "__import__": ["settings/BilliardBall/Billiard_Ball_default.json"],
+  "__import__": ["settings/BB/Billiard_Ball_default.json"],
   "model_dir": "results/Billiard_Ball_SS_GateL0RD/",
   "network_name": "GateL0RD",
   "reg_lambda": 0.001,
