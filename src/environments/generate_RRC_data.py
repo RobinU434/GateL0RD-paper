@@ -1,8 +1,8 @@
 from argparse import ArgumentParser
+from pathlib import Path
 import numpy as np
 from tqdm import tqdm
 import remote_control_gym as gym
-import os
 import math
 
 
@@ -43,8 +43,8 @@ def generate_dataset(
     while collected_samples < n_samples:
         iter_counter += 1
         progress_bar.set_description(f"Sample trajectories: trial={iter_counter}")
-        
-        seed = collected_samples + start_seed
+
+        seed = iter_counter + start_seed
         np.random.seed(seed)
         env = gym.RemoteControlGym(seed)
         robot_controlled = False
@@ -79,9 +79,11 @@ def generate_dataset(
         if (int(controlled_robot) + int(robot_controlled)) == 0 or (
             int(controlled_robot) + int(robot_controlled)
         ) == 2:
+            # print("add sample")
             rrc_states.append(states)
             collected_samples = len(rrc_states)
-            progress_bar.update(collected_samples)
+            progress_bar.update(1)
+        # print(collected_samples < n_samples, collected_samples, n_samples)
 
     progress_bar.close()
 
@@ -119,15 +121,78 @@ def setup_parser():
 
     return parser
 
+def get_file_name(controlled_robot: bool, biased: bool, train: bool) -> str:
+    base_filename = "ControlData"
+    if not controlled_robot:
+        filename = "No" + base_filename
+    else:
+        filename = base_filename
+
+    if biased:
+        filename = "Biased" + filename
+    else:
+        filename = "Generalized"  + filename
+    
+    if train:
+        filename += "Train"
+    else:
+        filename += "Test"
+
+    filename += ".npy"
+    return filename
+
 
 def main(target_dir: str, n_samples: int, seq_length: int, biased: bool):
-    os.makedirs(target_dir, exist_ok=True)
+    target_dir: Path = Path(target_dir)
+    target_dir.mkdir(parents=True, exist_ok=True)
+    
+    controlled_robot = False
+    
+    file_name = get_file_name(controlled_robot, biased, True)
+    print("Sample data for: ", file_name)
     rrc_states = generate_dataset(
-        n_samples, seq_length, 1900000, controlled_robot=False, biased=biased
+        n_samples=n_samples,
+        seq_length=seq_length,
+        start_seed= 1900000,
+        controlled_robot=controlled_robot,
+        biased=biased,
     )
-    print(rrc_states.shape)
-    # filename = target_dir + "BiasedNoControlDataTrain.npy"
-    # np.save(filename, rrc_states)
+    np.save(target_dir / file_name, rrc_states)
+    
+    file_name = get_file_name(controlled_robot, biased, False)
+    print("Sample data for: ", file_name)
+    rrc_states = generate_dataset(
+        n_samples=n_samples,
+        seq_length=seq_length,
+        start_seed= 2900000,
+        controlled_robot=controlled_robot,
+        biased=biased,
+    )
+    np.save(target_dir / file_name, rrc_states)
+
+    
+    controlled_robot = True
+    file_name = get_file_name(controlled_robot, biased, True)
+    print("Sample data for: ", file_name)
+    rrc_states = generate_dataset(
+        n_samples=n_samples,
+        seq_length=seq_length,
+        start_seed= 3900000,
+        controlled_robot=controlled_robot,
+        biased=biased,
+    )
+    np.save(target_dir / file_name, rrc_states)
+    
+    file_name = get_file_name(controlled_robot, biased, False)
+    print("Sample data for: ", file_name)
+    rrc_states = generate_dataset(
+        n_samples=n_samples,
+        seq_length=seq_length,
+        start_seed= 4900000,
+        controlled_robot=controlled_robot,
+        biased=biased,
+    )
+    np.save(target_dir / file_name, rrc_states)
 
 
 if __name__ == "__main__":
