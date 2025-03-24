@@ -1,4 +1,5 @@
 import numpy as np
+from tqdm import tqdm
 import shepherd_gym as gym
 import random
 import os
@@ -12,7 +13,10 @@ seq_len = 101
 random.seed(42)
 
 # Sequences in which the gate is opened and agent starts on the left side
+file_name = "shepherd_data_gateopen_startleft.npy"
+print("Sample data for: ", file_name)
 c = 0
+progress_bar = tqdm(desc="Sample trajectories", total=num_data_per_dataset)
 memory_states = np.zeros((num_data_per_dataset, seq_len, 21))
 for run in range(1000000, 2000000):
     env = gym.ShepherdGym(run)
@@ -41,20 +45,24 @@ for run in range(1000000, 2000000):
             gate_opened_t = t
 
     if states[30, 10] == 0 and states[70, 10] == 1 and c < num_data_per_dataset:
-        print(c, ":sheep freed at run", run, " with gate opened @ ", gate_opened_t)
+        # print(c, ":sheep freed at run", run, " with gate opened @ ", gate_opened_t)
         memory_states[c, :, :] = states[:, :]
         c += 1
+        progress_bar.update()
     if c >= num_data_per_dataset:
         env.close()
         break;
     env.close()
-filename = target_dir + "shepherd_data_gateopen_startleft.npy"
-np.save(filename, memory_states)
+progress_bar.close()
+np.save(target_dir + file_name, memory_states)
 #torch.save(torch.from_numpy(memory_states).float(), filename)
 
 # Sequences in which the gate is opened and agent starts on the right side
 # Here left and up actions are sampled more frequently
+file_name = "shepherd_data_gateopen_startright.npy"
+print("Sample data for: ", file_name)
 c = 0
+progress_bar = tqdm(desc="Sample trajectories", total=num_data_per_dataset)
 memory_states = np.zeros((num_data_per_dataset, seq_len, 21))
 for run in range(2000000, 3000000):
     env = gym.ShepherdGym(run)
@@ -102,20 +110,24 @@ for run in range(2000000, 3000000):
             gate_opened = True
 
     if states[30, 10] == 0 and states[70, 10] == 1 and states[100, 12] == 0 and c < num_data_per_dataset:
-        print(c, ":sheep freed at run", run, " with gate opened @ ", gate_opened_t)
+        # print(c, ":sheep freed at run", run, " with gate opened @ ", gate_opened_t)
         memory_states[c, :, :] = states[:, :]
         c += 1
+        progress_bar.update()
     if c >= num_data_per_dataset:
         env.close()
         break;
     env.close()
-filename = target_dir + "shepherd_data_gateopen_startright.npy"
-np.save(filename, memory_states)
+progress_bar.close()
+np.save(target_dir + file_name, memory_states)
 #torch.save(torch.from_numpy(memory_states).float(), filename)
 
 # Sequences in which the gate is opened and agent starts on the right side and the sheep is caught
 # Here left and up actions are sampled more frequently
+file_name = "shepherd_data_sheepcaught_startright.npy"
+print("Sample data for: ", file_name)
 c = 0
+progress_bar = tqdm(desc="Sample trajectories", total=num_data_per_dataset)
 memory_states = np.zeros((num_data_per_dataset, seq_len, 21))
 for run in range(3000000, 4000000):
     env = gym.ShepherdGym(run)
@@ -172,16 +184,20 @@ for run in range(3000000, 4000000):
         c, ":sheep caught at run ", run, " with gate opened @ ", gate_opened_t, " & sheep caught @ ", sheep_caught_t)
         memory_states[c, :, :] = states[:, :]
         c += 1
+        progress_bar.update()
     if c >= num_data_per_dataset:
         env.close()
         break;
     env.close()
-filename = target_dir + "shepherd_data_sheepcaught_startright.npy"
-np.save(filename, memory_states)
+progress_bar.close()
+np.save(target_dir + file_name, memory_states)
 #torch.save(torch.from_numpy(memory_states).float(), filename)
 
 # Sequences in which the gate remains closed
+file_name = "shepherd_data_gateclosed_startleft.npy"
+print("Sample data for: ", file_name)
 c = 0
+progress_bar = tqdm(desc="Sample trajectories", total=num_data_per_dataset)
 memory_states = np.zeros((num_data_per_dataset, seq_len, 21))
 for run in range(4000000, 5000000):
     env = gym.ShepherdGym(run)
@@ -209,13 +225,14 @@ for run in range(4000000, 5000000):
             gate_opened_t = t
 
     if states[100, 10] == 0 and c < num_data_per_dataset:
-        print(c, ":gate closed at run", run)
+        # print(c, ":gate closed at run", run)
         memory_states[c, :, :] = states[:, :]
         c += 1
+        progress_bar.update()
     if c >= num_data_per_dataset:
         env.close()
         break;
     env.close()
-filename = target_dir + "shepherd_data_gateclosed_startleft.npy"
-np.save(filename, memory_states)
+progress_bar.close()
+np.save(target_dir + file_name, memory_states)
 #torch.save(torch.from_numpy(memory_states).float(), filename)
