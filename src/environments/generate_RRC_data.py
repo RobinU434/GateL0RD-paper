@@ -131,7 +131,7 @@ def get_file_name(controlled_robot: bool, biased: bool, train: bool) -> str:
     if biased:
         filename = "Biased" + filename
     else:
-        filename = "Generalized"  + filename
+        filename = "Generalization"  + filename
     
     if train:
         filename += "Train"
