@@ -24,9 +24,7 @@ If you run into troubles with respect to pyglet and Anaconda. Especially error M
 pyglet.window.NoSuchConfigException: No standard config is available.
 ```
 
-Those could be related of using conda. As a workaround it would be advisiable to use virtual environments like `venv` or `virtualenv` and installing all dependcies into this virtual environment. 
-
-    
+Those could be related of using conda. As a workaround it would be advisiable to use virtual environments like `venv` or `virtualenv` and installing all dependcies into this virtual environment.
 
 ## Data and environments
 
@@ -39,11 +37,14 @@ Our novel **Robot Remote Control (RRC)** and **Shepherd** problems are implement
 
 Run the following code to generate the RRC and Shepherd datasets:
 
-`python3 src/environments/generate_RRC_data_biased.py` (RRC train and testing data)
+```bash
+python src/environments/generate_RRC_data.py
+python src/environments/generate_shepard_data.py
+```
 
-    (RRC generalization data)
+Both scripts have an argument parser and can be adapted on the fly with passing arguments inside. Please inspect those with either `-h` or `--help`
 
-`python3 src/environments/generate_Shepherd_data.py` (Shepherd data)
+
 
 ## Running experiments
 
