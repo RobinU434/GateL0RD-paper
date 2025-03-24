@@ -1,5 +1,7 @@
 import argparse
 import sys
+
+from tqdm import tqdm
 import smart_settings
 import os
 import numpy as np
@@ -42,6 +44,7 @@ if __name__ == '__main__':
     output_dim = 2
     factor_output = 0.1
 
+    print("load network")
     if network_name == 'GateL0RD':
         net = GateL0RD.GateL0RDModel(input_dim=input_dim, output_dim=output_dim, latent_dim=params.latent_dim,
                                      feature_dim=params.feature_dim, num_layers=params.layer_num,
@@ -57,6 +60,8 @@ if __name__ == '__main__':
                                rnn_type=network_name, f_pre_layers=params.preprocessing_layers,
                                f_post_layers=params.postprocessing_layers, f_init_layers=params.warm_up_layers,
                                f_init_inputs=params.warm_up_inputs)
+    n_parameters = np.sum([len(param.flatten()) for param in net.parameters()])
+    print("numper parameters: ", n_parameters)
 
     optimizer = net.get_optimizer(params.lr)
 
@@ -68,9 +73,10 @@ if __name__ == '__main__':
     subdataset_batch_size = 8
     batch_size = subdataset_batch_size * num_subdatasets
 
+    print("load datasets")
     train_dataloaders, val_dataloaders, test_dataloaders = bb_dataloader.get_billiard_ball_dataloaders(dataset_split_rs=dataset_split_rs,
                                                                                                        seq_len=seq_len,
-                                                                                                       subdataset_batch_size=subdataset_batch_size)
+                                                                                                       subdataset_batch_size=   )
 
     # Scheduled Sampling
     ss_slope = float(params.ss_slope)
@@ -99,7 +105,7 @@ if __name__ == '__main__':
     epoch_start= 0
     validations = 0
 
-    for epoch in range(epoch_start, num_epochs):
+    for epoch in tqdm(range(epoch_start, num_epochs), desc="Training", unit="epoch"):
 
         # Log one plot for every 1000th epoch
         if epoch%t_validation == 0:
